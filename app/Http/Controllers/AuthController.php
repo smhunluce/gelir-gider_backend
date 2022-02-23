@@ -125,14 +125,4 @@ class AuthController extends Controller
     {
         return response()->json($request->user());
     }
-
-    /**
-     * Expired Sessions
-     *
-     * @return JsonResponse [json] user object
-     */
-    public function unauthorized()
-    {
-        return response()->json(['message' => 'Unauthorized.'], 401);
-    }
 }
