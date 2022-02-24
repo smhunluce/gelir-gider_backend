@@ -30,7 +30,10 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
+            return response()->json([
+                'error'   => $validator->errors(),
+                'message' => 'Validation Error',
+            ], 400);
         }
 
         $user               = new User();
@@ -42,7 +45,8 @@ class AuthController extends Controller
         $user->save();
 
         return response()->json([
-            'message' => 'Successfully created user!',
+            'user'    => $user,
+            'message' => 'Created successfully',
         ], 201);
     }
 
@@ -74,7 +78,10 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
+            return response()->json([
+                'error'   => $validator->errors(),
+                'message' => 'Validation Error',
+            ], 400);
         }
 
         if ($login_with_phone) {
@@ -123,6 +130,9 @@ class AuthController extends Controller
      */
     public function user(Request $request)
     {
-        return response()->json($request->user());
+        return response()->json([
+            'user'    => $request->user(),
+            'message' => 'Retrieved successfully',
+        ]);
     }
 }

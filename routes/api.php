@@ -27,3 +27,9 @@ Route::group([
         Route::get('user', 'App\Http\Controllers\AuthController@user');
     });
 });
+
+Route::apiResource(
+    'transactionCategory',
+    'App\Http\Controllers\TransactionCategoryController',
+    ['except' => ['update', 'destroy']]
+)->middleware('auth:api');
