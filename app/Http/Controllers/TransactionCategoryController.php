@@ -14,14 +14,16 @@ class TransactionCategoryController extends Controller
     /**
      * Display a listing of the transaction (income/expense) categories.
      *
+     * @param Request $request
      * @return Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $categories = TransactionCategory::all();
+        $per_page   = $request->per_page ?? 10;
+        $categories = TransactionCategory::paginate($per_page);
 
         return response([
-            'categories' => TransactionCategoryResource::collection($categories),
+            'categories' => $categories,
             'message'    => 'Retrieved successfully',
         ]);
     }
