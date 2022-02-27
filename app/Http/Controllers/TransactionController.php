@@ -215,11 +215,14 @@ class TransactionController extends Controller
             'transaction_date' => 'required|date_format:d.m.Y',
         ]);
 
+
         if ($validator->fails()) {
-            return response([
-                'error'   => $validator->errors(),
-                'message' => 'Validation Error',
-            ], 400);
+            return $validator->errors()->hasAny('user_id')
+                ? response(['message' => 'Unauthorized'], 403)
+                : response([
+                    'error'   => $validator->errors(),
+                    'message' => 'Validation Error',
+                ], 400);
         }
 
         $data['transaction_date'] = Carbon::createFromFormat('d.m.Y', $request->transaction_date)
