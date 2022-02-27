@@ -20,7 +20,7 @@ class TransactionCategoryController extends Controller
     public function index(Request $request)
     {
         $per_page   = $request->per_page ?? 10;
-        $categories = TransactionCategory::paginate($per_page);
+        $categories = TransactionCategory::where('user_id', $request->user()->id)->paginate($per_page);
 
         return response([
             'categories' => $categories,

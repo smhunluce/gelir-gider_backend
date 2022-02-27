@@ -10,12 +10,14 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      *
-     * @param \Illuminate\Console\Scheduling\Schedule $schedule
+     * @param Schedule $schedule
      * @return void
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->command('tcmb:cron')->everyTenMinutes()
+            ->between('15:30', '16:30')
+            ->weekdays();
     }
 
     /**

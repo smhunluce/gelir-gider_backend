@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -33,3 +32,8 @@ Route::apiResource(
     'App\Http\Controllers\TransactionCategoryController',
     ['except' => ['update', 'destroy']]
 )->middleware('auth:api');
+Route::apiResource(
+    'transaction',
+    'App\Http\Controllers\TransactionController'
+)->middleware('auth:api');
+
