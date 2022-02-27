@@ -33,13 +33,12 @@ Route::apiResource(
     ['except' => ['update', 'destroy']]
 )->middleware('auth:api');
 
-Route::apiResource(
-    'transaction',
-    'App\Http\Controllers\TransactionController'
-)->middleware('auth:api');
-
 Route::get(
     'transaction/history',
     'App\Http\Controllers\TransactionController@history'
 )->name('transaction.history')->middleware('auth:api');
+Route::apiResource(
+    'transaction',
+    'App\Http\Controllers\TransactionController'
+)->middleware('auth:api');
 

@@ -27,6 +27,12 @@ class AuthController extends Controller
             'email'        => 'required|email|unique:users',
             'phone_number' => ['required', 'unique:users', new TurkishPhone],
             'password'     => 'required',
+        ], [], [
+            'firstname'    => 'Ísim',
+            'lastname'     => 'Soyisim',
+            'email'        => 'Email',
+            'phone_number' => 'Telefon Numarası',
+            'password'     => 'Şifre',
         ]);
 
         if ($validator->fails()) {
@@ -61,11 +67,13 @@ class AuthController extends Controller
         $login_with_phone = FALSE;
         if (filter_var($request->input('email_phone'), FILTER_VALIDATE_EMAIL)) {
             $login_field = 'email';
+            $login_name  = 'Email';
             $login_rules = 'required|email';
             $request->request->add(['email' => $request->input('email_phone')]);
         } else {
             $login_with_phone = TRUE;
             $login_field      = 'phone_number';
+            $login_name       = 'Telefon Numarası';
             $login_rules      = ['required', new TurkishPhone];
             $request->request->add(['phone_number' => $request->input('email_phone')]);
         }
@@ -75,6 +83,9 @@ class AuthController extends Controller
         $validator = Validator::make($credentials, [
             $login_field => $login_rules,
             'password'   => 'required',
+        ], [], [
+            $login_field => $login_name,
+            'password'   => 'Şifre',
         ]);
 
         if ($validator->fails()) {

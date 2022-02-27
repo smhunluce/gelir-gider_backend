@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use App\Http\Resources\TransactionResource;
 use App\Models\Transaction;
+use App\Models\Currency;
 
 class TransactionController extends Controller
 {
@@ -150,6 +151,11 @@ class TransactionController extends Controller
             'amount'           => 'required|numeric|gt:0',
             'currency'         => 'required|in:TRY,USD,EUR',
             'transaction_date' => 'required|date_format:d.m.Y',
+        ], [], [
+            'category_id'      => 'Kategori',
+            'amount'           => 'Tutar',
+            'currency'         => 'Kur',
+            'transaction_date' => 'İşlem Tarihi',
         ]);
 
         if ($validator->fails()) {
@@ -213,8 +219,12 @@ class TransactionController extends Controller
             'amount'           => 'required|numeric|gt:0',
             'currency'         => 'required|in:TRY,USD,EUR',
             'transaction_date' => 'required|date_format:d.m.Y',
+        ], [], [
+            'category_id'      => 'Kategori',
+            'amount'           => 'Tutar',
+            'currency'         => 'Kur',
+            'transaction_date' => 'İşlem Tarihi',
         ]);
-
 
         if ($validator->fails()) {
             return $validator->errors()->hasAny('user_id')
@@ -246,5 +256,54 @@ class TransactionController extends Controller
         $transaction->delete();
 
         return response(['message' => 'Deleted']);
+    }
+
+    /**
+     * Display a listing of the transaction (income/expense).
+     *
+     * @param Request $request
+     * @return Response
+     */
+    public function history(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'from_date' => 'required|date_format:d.m.Y',
+            'to_date'   => 'required|date_format:d.m.Y',
+        ], [], [
+            'from_date' => 'Başlangıc Tarihi',
+            'to_date'   => 'Bitiş Tarihi',
+        ]);
+
+        if ($validator->fails()) {
+            return response([
+                'error'   => $validator->errors(),
+                'message' => 'Validation Error',
+            ], 400);
+        }
+
+        $rate_date = Currency::whereIN('currency', ['USD/TRY', 'EUR/TRY'])->first()->date;
+
+        $history = Transaction::with('category')
+            ->where('user_id', $request->user()->id);
+
+
+        $from_date = Carbon::createFromFormat('d.m.Y', $request->from_date)->format('Y-m-d');
+        $to_date   = Carbon::createFromFormat('d.m.Y', $request->to_date)->format('Y-m-d');
+
+        $min_date = min([$from_date, $to_date]);
+        $max_date = max([$from_date, $to_date]);
+        $history->whereBetween('transaction_date', [$min_date, $max_date])
+            ->orderBy('id', 'desc');
+        $history = $history->get()
+            ->each(function ($items) {
+                $items->append('try_amount');  // getTryAmountAttribute();
+            });
+
+        return response([
+            'total_amount' => $history->sum('try_amount'),
+            'rate_date'    => $rate_date,
+            'history'      => $history,
+            'message'      => 'Retrieved successfully',
+        ]);
     }
 }

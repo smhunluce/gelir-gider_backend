@@ -22,6 +22,21 @@ class Transaction extends Model
         'description',
     ];
 
+    public function getTryAmountAttribute()
+    {
+        $currencies = Currency::whereIN('currency', ['USD/TRY', 'EUR/TRY'])->get();
+        $currencies = $currencies->pluck('rate', 'currency');
+
+        $rate = 1;
+        if (in_array($this->currency, ['USD', 'EUR'])) {
+            $rate = $currencies[$this->currency . '/TRY'];
+        }
+        if ($this->category->type == 'expense')
+            $rate *= -1;
+
+        return $this->amount * $rate;
+    }
+
     /**
      * @return BelongsTo
      */

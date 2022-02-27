@@ -50,6 +50,9 @@ class TransactionCategoryController extends Controller
                 }),
             ],
             'type' => 'required|in:income,expense',
+        ], [], [
+            'name' => 'Kategori İsmi',
+            'type' => 'Tür',
         ]);
 
         if ($validator->fails()) {
