@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Rules\TurkishPhone;
+use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
 {
@@ -25,8 +26,14 @@ class AuthController extends Controller
             'firstname'    => 'required',
             'lastname'     => 'required',
             'email'        => 'required|email|unique:users',
-            'phone_number' => ['required', 'unique:users', new TurkishPhone],
-            'password'     => 'required',
+            'phone_number' => ['required', 'digits:12', 'unique:users', new TurkishPhone],
+            'password'     => [
+                'required',
+                Password::min(8)->mixedCase()
+                    ->letters()
+                    ->numbers()
+                    ->symbols(),
+            ],
         ], [], [
             'firstname'    => 'Ísim',
             'lastname'     => 'Soyisim',
@@ -106,12 +113,13 @@ class AuthController extends Controller
         $tokenData = auth()->user()->createToken('apiAuthToken');
         $token     = $tokenData->token;
 
-        if ($request->has('remember_me'))
-            $token->expires_at = Carbon::now()->addWeeks();
+        if ($request->filled('remember_me'))
+            $token->expires_at = Carbon::now()->addWeeks(4);
 
         $token->save();
 
         return response()->json([
+            'user'         => auth()->user(),
             'access_token' => $tokenData->accessToken,
             'token_type'   => 'Bearer',
             'expires_in'   => Carbon::parse($tokenData->token->expires_at)->toDateTimeString(),
